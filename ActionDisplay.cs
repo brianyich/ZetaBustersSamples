@@ -1,5 +1,6 @@
 ﻿/*
-	This script is for the Action Display that animates down
+	Brian Yich, 2015
+	This script is for the Action Display that animates down upon any unit attack or skill.
 */
 
 using UnityEngine;
@@ -8,19 +9,30 @@ using UnityEngine.UI;
 
 namespace ZetaBusters{
 	public class ActionDisplay : MonoBehaviour {
-	
-		public static ActionDisplay instance;
+		
+		//Singleton
+		private static ActionDisplay _instance;
+		public static ActionDisplay instance
+		{
+			get
+			{
+				if (_instance == null)
+					_instance = GameObject.FindObjectOfType<ActionDisplay>();
+				return _instance;
+			}
+		}
+		
+		
 		public Image actionDisplayBG;
 		public Text actionText;
 		public Animator actionAnimator;
+		
+		//sprites to swap in, different displays for different types of abilities
 		public Sprite attack;
 		public Sprite heal;
 		public Sprite boost;
 		
-		public void Initialize(){
-			instance = this;
-		}
-		
+		//swaps the action display based on type of ability
 		public void SetActionDisplay(CardType type, string cardName){
 			if(type == CardType.Attack){
 				actionDisplayBG.sprite = attack;
@@ -32,6 +44,7 @@ namespace ZetaBusters{
 			actionText.text = cardName;
 		}
 		
+		//action display slide in animation on true, slide out on false
 		public void ShowActionDisplay(bool b){
 			if(b){
 				actionAnimator.SetBool("ActionSlideBool", true);

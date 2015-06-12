@@ -1,12 +1,28 @@
-﻿using UnityEngine;
+﻿/*
+	Brian Yich 2015
+	This script is for the popup stat display that comes up when middle clicking on a unit.
+*/
+
+using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
 
 namespace ZetaBusters{
 	public class UnitDisplay : MonoBehaviour {
 	
-		public static UnitDisplay instance;
+		//Singleton
+		private static UnitDisplay _instance;
+		public static UnitDisplay instance
+		{
+			get
+			{
+				if (_instance == null)
+					_instance = GameObject.FindObjectOfType<UnitDisplay>();
+				return _instance;
+			}
+		}
 		
+		//UI elements for stat display
 		public Image charPortrait;
 		public Text charName;
 		public Text charATT;
@@ -17,24 +33,26 @@ namespace ZetaBusters{
 		public Text passiveDescription;
 		public Text passiveName2;
 		public Text passiveDescription2;
+		public Image hpBar;
 		
+		//stat boost UI elements
 		public Text attBoost;
 		public Text defBoost;
 		public Text dodBoost;
 		public Text movBoost;
-		public Image hpBar;
+		
+		//popup display if hovering on UI elements within stat display
 		public GameObject hoverBox;
 		public Text boxDescription;
+		
+		//bellbotula specific element
 		public GameObject questionMarks;
 		
 		private int temp;
 		private Unit tempUnit;
 		
-		public void Initialize(){
-			instance = this;
-		}
-		
 		public void SetDisplay(Unit u){
+			//if the unit you're looking at is bellbotula, every stat is a mystery
 			if(u.GetUnitType() == UnitType.Bellbotula){
 				questionMarks.SetActive(true);
 				charPortrait.sprite = u.GetPortrait ();
@@ -53,7 +71,10 @@ namespace ZetaBusters{
 				movBoost.text = "";
 				dodBoost.text = "";
 				boxDescription.text = "???";
-			}else{
+			}
+			//for any other unit
+			else{
+				//updates all the stat display stuff
 				questionMarks.SetActive(false);
 				charPortrait.sprite = u.GetPortrait ();
 				charName.text = u.name;
@@ -66,6 +87,9 @@ namespace ZetaBusters{
 				passiveName2.text = u.GetAbility2Name();
 				passiveDescription2.text = u.GetAbility2Description ();
 				boxDescription.text = u.GetCurrentHealth().ToString() + "/" + u.GetStatMaxHealth().ToString() + " HP";
+				
+				//checks if boosts are negative or positive
+				//red for negative, green for positive
 				if(u.GetStatAttack() != u.GetStatBaseAttack ()){
 					temp = u.GetStatAttack () - u.GetStatBaseAttack ();
 					if(temp > 0){
@@ -75,7 +99,9 @@ namespace ZetaBusters{
 						attBoost.color = Color.red;
 						attBoost.text = temp.ToString ();
 					}
-				}else{
+				}
+				//if no boost, it doesn't display anything
+				else{
 					attBoost.text = "";
 				}
 				if(u.GetStatDefense() != u.GetStatBaseDefense()){
@@ -123,12 +149,16 @@ namespace ZetaBusters{
 				}
 				
 			}
+			//sets the temporary unit for your hover functions
 			tempUnit = u;
 		}
 		
+		//when hovering over UI element
 		public void OnItemEnter(string type){
 			boxDescription.text = type;
 		}
+		
+		//when exiting UI element
 		public void OnItemExit(){
 			if(tempUnit.GetUnitType() == UnitType.Bellbotula){
 				boxDescription.text = "???";
